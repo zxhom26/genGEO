@@ -9,7 +9,7 @@ from models.simulationParameters import SimulationParameters
 
 logTrans = np.arange(2., 8., 1.)
 permeabilities = 1e-15 * 10. ** logTrans
-depths = np.arange(1000, 8000, 1000)
+depths = np.arange(1000, 8000, 3000)
 
 # create output folder
 output_folder = 'results'
