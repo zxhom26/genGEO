@@ -22,8 +22,9 @@ from models.wellFieldType import WellFieldType
 from models.optimizationType import OptimizationType
 from models.simulationParameters import SimulationParameters
 
-logTrans = np.arange(2., 8., 1.)
-permeabilities = 1e-15 * 10. ** logTrans
+# logTrans = np.logspace(15, 8., 1.)
+# permeabilities = 1e-15 * 10. ** logTrans
+permeabilities = np.logspace(15, 18, 10)
 depths = np.arange(1000, 8000, 1000)
 '''
 DERIVE FROM SOURCE BHT FILE
@@ -66,7 +67,9 @@ for depth in depths:
             error_str = ''
 
         except Exception as error:
+            print("============================================================")
             print(f"Error caught for depth: {depth}, permeability: {permeability}")
+            print("============================================================")
             error_str = str(error).replace("\n", "").replace(",", " - ")
             lcoe_b = 0.
             lcoe_g = 0.
