@@ -42,7 +42,7 @@ output_file = open(os.path.join(output_folder, 'exampleORC.csv'), 'w')
 params = SimulationParameters(working_fluid = 'water', 
                               orc_fluid = 'R245fa', # or R600a
                               wellFieldType = WellFieldType.Doublet,
-                              cost_year = 2021,
+                              cost_year = 2019,
                               opt_mode = OptimizationType.MaximizePower)
 
 # generate the full system
