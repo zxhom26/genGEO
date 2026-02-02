@@ -24,7 +24,7 @@ from models.simulationParameters import SimulationParameters
 
 # logTrans = np.logspace(15, 8., 1.)
 # permeabilities = 1e-15 * 10. ** logTrans
-permeabilities = np.logspace(-15, -18, 10)
+permeabilities = np.logspace(-12, -15, 10)
 depths = np.arange(1000, 8000, 1000)
 '''
 DERIVE FROM SOURCE BHT FILE
@@ -56,7 +56,8 @@ for depth in depths:
         print('Depth: ', depth)
         print('Permeability: ', permeability)
         params.depth = depth
-        params.permeability = permeability / 100.
+        # params.permeability = permeability / 100.
+        params.permeability = permeability
 
         try:
             output = full_system_solver.solve()
