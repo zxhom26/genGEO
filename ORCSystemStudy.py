@@ -69,6 +69,7 @@ for depth in depths:
         except Exception as error:
             print("============================================================")
             print(f"Error caught for depth: {depth}, permeability: {permeability}")
+            print(f"Error: {error}")
             print("============================================================")
             error_str = str(error).replace("\n", "").replace(",", " - ")
             lcoe_b = 0.
