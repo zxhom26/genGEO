@@ -95,7 +95,7 @@ full_system = FullSystemORC.getDefaultWaterSystem(params)
 full_system_solver = FullSystemSolver(full_system)
 
 # iterate over all hot wells (>120C) in LA/TX and solve the system
-df_wells = pd.read_csv("C:\Users\zxhom\OneDrive\Documents\GitHub\genGEO\test_wells.csv", header=True)
+df_wells = pd.read_csv(r"C:\Users\zxhom\OneDrive\Documents\GitHub\genGEO\test_wells.csv", header=True)
 
 for index, row in df_wells.iterrows():
     params.depth = row['depth']
