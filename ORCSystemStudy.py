@@ -114,7 +114,7 @@ for index, row in df_wells.iterrows():
 
     except Exception as error:
         print("============================================================")
-        print(f"Error caught for depth: {depth}, permeability: {permeability}")
+        print(f"Error caught for well {index}")
         print(f"Error: {error}")
         print("============================================================")
         error_str = str(error).replace("\n", "").replace(",", " - ")
@@ -123,7 +123,7 @@ for index, row in df_wells.iterrows():
         power = 0.
         optMdot = 0.
 
-    output_file.write(','.join([str(i) for i in [depth, permeability, optMdot, lcoe_b, lcoe_g, power, """%s\n"""%error_str]]))
+    output_file.write(','.join([str(i) for i in [optMdot, lcoe_b, lcoe_g, power, """%s\n"""%error_str]]))
 
 output_file.close()
 
