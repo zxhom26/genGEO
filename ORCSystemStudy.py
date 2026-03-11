@@ -14,8 +14,6 @@
 
 ############################
 import os
-import numpy as np
-import pandas as pd
 from pathlib import Path
 
 from src.fullSystemORC import FullSystemORC
@@ -30,7 +28,7 @@ if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 
 # output_file = open(os.path.join(output_folder, 'exampleORC.csv'), 'w')
-with open(os.path.join(output_folder, 'ORC_run1.csv'), 'w') as output_file:
+with open(os.path.join(output_folder, 'gen_estimates.csv'), 'w') as output_file:
     output_file.write("optMdot,lcoe_b,lcoe_g,power,error\n") # writing header information for output file
 
     # initialize parameters
@@ -39,7 +37,9 @@ with open(os.path.join(output_folder, 'ORC_run1.csv'), 'w') as output_file:
                                 wellFieldType = WellFieldType.Doublet,
                                 cost_year = 2019,
                                 opt_mode = OptimizationType.MaximizePower,
-                                max_pump_dP = 20.e6,)
+                                max_pump_dP = 20.e6, # CHECK TO MAKE SURE THIS IS A REASONABLE VALUE FOR THE PUMPING PRESSURE DROP, AS THIS WILL AFFECT WHETHER OR NOT THE SYSTEM CAN FIND A FEASIBLE SOLUTION
+                                k_rock = 2.08, # W/m-K, average conductivity across all wells >120C in LA/TX
+                                rho_rock = 2550.,) # kg/m^3, lower band assumption for sedimentary rock density
     '''
     working_fluid = None,
     orc_fluid = None,
@@ -52,7 +52,7 @@ with open(os.path.join(output_folder, 'ORC_run1.csv'), 'w') as output_file:
     well_spacing = 707.,
     monitoring_well_radius = 0.108,
     dT_dz = 0.035,
-    silica_precipitation = False,
+    silica_precipitation = False, 
     T_surface_rock = 15,
     T_ambient_C = 15.,
     reservoir_thickness = 100.,
@@ -114,13 +114,11 @@ with open(os.path.join(output_folder, 'ORC_run1.csv'), 'w') as output_file:
             params.dT_dz = row.harrison_gradient / 1000. if pd.notna(row.harrison_gradient) else 0.035 # default value for harrison gradient
             params.T_surface_rock = row.surface_temp if pd.notna(row.surface_temp) else 15 # default value for surface temperature
             
-            # MAYBE USE AMBIENT TEMP???
-            # params.T_ambient_C = row.surface_temp if pd.notna(row.surface_temp) else 15. # default value for ambient temperature
-            
             # Set physical property parameters
+            params.reservoir_thickness = row.depth if pd.notna(row.depth) else 100. # default value for reservoir thickness
             params.k_rock = row.k if pd.notna(row.k) else 2.08 # average conductivity across all wells [W/m-K]
 
-            # generate the full system
+            # Generate the full system
             full_system = FullSystemORC.getDefaultWaterSystem(params)
             full_system_solver = FullSystemSolver(full_system)
 
