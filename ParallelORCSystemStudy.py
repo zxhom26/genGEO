@@ -23,7 +23,6 @@ def simulate_well(row):
     try:
         print(f"Simulating Well {row.Index}...")
 
-        # clone template parameters for each well
         params = SimulationParameters(working_fluid='water',
                                         orc_fluid='R245fa',
                                         wellFieldType=WellFieldType.Doublet,
@@ -35,31 +34,31 @@ def simulate_well(row):
 
         # assign well-specific parameters
         if pd.isna(row.depth):
-            raise ValueError("Depth is NaN, cannot simulate well")
+            raise ValueError("Depth is NaN, cannot simulate well") # fatal error
         params.depth = row.depth
 
         if pd.notna(row.harrison_gradient):
-            params.dT_dz = row.harrison_gradient / 1000. 
+            params.dT_dz = row.harrison_gradient / 1000. # convert from K/km to K/m
         else:
-            print(f"Warning: Harrison gradient is NaN for well {row.Index}, using default value of 35 K/km")
+            print(f"[Warning]: Harrison gradient is NaN for well {row.Index}, using default value of 35 K/km")
             params.dT_dz = 0.035
 
         if pd.notna(row.surface_temp):
             params.T_surface_rock = row.surface_temp
         else: 
-            print(f"Warning: Surface temperature is NaN for well {row.Index}, using default value of 15 C")
+            print(f"[Warning]: Surface temperature is NaN for well {row.Index}, using default value of 15 C")
             params.T_surface_rock = 15
         
         if pd.notna(row.depth):
-            params.reservoir_thickness = row.depth 
+            params.reservoir_thickness = row.depth # Assuming reservoir thickness is equal to depth!!!!
         else:
-            print(f"Warning: Depth is NaN for well {row.Index}, using default reservoir thickness of 100 m")
+            print(f"[Warning]: Depth is NaN for well {row.Index}, using default reservoir thickness of 100 m")
             params.reservoir_thickness = 100.
 
         if pd.notna(row.k):
             params.k_rock = row.k 
         else:
-            print(f"Warning: Permeability is NaN for well {row.Index}, using default value of 2.08 mD")
+            print(f"[Warning]: Permeability is NaN for well {row.Index}, using default value of 2.08 mD")
             params.k_rock = 2.08
 
         # simulate system
@@ -78,7 +77,7 @@ def simulate_well(row):
         lcoe_b = lcoe_g = power = optMdot = 0.
         error_str = str(e).replace("\n", "").replace(",", " - ")
 
-    return row.Index, optMdot, lcoe_b, lcoe_g, power, error_str
+    return row.Index, row.depth, row.latitude, row.longitude, params.dT_dz, row.k, optMdot, lcoe_b, lcoe_g, power, error_str
 
 # run simulations in parallel
 results = []
@@ -88,8 +87,8 @@ with ThreadPoolExecutor(max_workers=6) as executor:  # adjust workers to your CP
         results.append(future.result())
 
 # write results to CSV
-output_file_path = os.path.join(output_folder, 'gen_estimates.csv')
+output_file_path = os.path.join(output_folder, 'gen_estimates2.csv')
 with open(output_file_path, 'w') as output_file:
-    output_file.write("well,optMdot,lcoe_b,lcoe_g,power,error\n")
+    output_file.write("well,depth,latitude,longitude,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
     for res in results:
         output_file.write(','.join([str(i) for i in res]) + "\n")
