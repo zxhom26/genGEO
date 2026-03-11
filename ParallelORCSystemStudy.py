@@ -13,18 +13,6 @@ from models.simulationParameters import SimulationParameters
 output_folder = 'thesis_results'
 os.makedirs(output_folder, exist_ok=True)
 
-# initialize parameters template
-params_template = SimulationParameters(
-    working_fluid='water',
-    orc_fluid='R245fa',
-    wellFieldType=WellFieldType.Doublet,
-    cost_year=2019,
-    opt_mode=OptimizationType.MaximizePower,
-    max_pump_dP=20.e6,
-    k_rock=2.08,
-    rho_rock=2550.,
-)
-
 # read wells CSV
 base_path = Path(__file__).parent
 csv_path = base_path / "test_wells.csv"
@@ -36,16 +24,43 @@ def simulate_well(row):
         print(f"Simulating Well {row.Index}...")
 
         # clone template parameters for each well
-        params = SimulationParameters(**params_template.__dict__)
+        params = SimulationParameters(working_fluid='water',
+                                        orc_fluid='R245fa',
+                                        wellFieldType=WellFieldType.Doublet,
+                                        cost_year=2019,
+                                        opt_mode=OptimizationType.MaximizePower,
+                                        max_pump_dP=20.e6,
+                                        k_rock=2.08,
+                                        rho_rock=2550.,)
 
         # assign well-specific parameters
         if pd.isna(row.depth):
             raise ValueError("Depth is NaN, cannot simulate well")
         params.depth = row.depth
-        params.dT_dz = row.harrison_gradient / 1000. if pd.notna(row.harrison_gradient) else 0.035
-        params.T_surface_rock = row.surface_temp if pd.notna(row.surface_temp) else 15
-        params.reservoir_thickness = row.depth if pd.notna(row.depth) else 100.
-        params.k_rock = row.k if pd.notna(row.k) else 2.08
+
+        if pd.notna(row.harrison_gradient):
+            params.dT_dz = row.harrison_gradient / 1000. 
+        else:
+            print(f"Warning: Harrison gradient is NaN for well {row.Index}, using default value of 35 K/km")
+            params.dT_dz = 0.035
+
+        if pd.notna(row.surface_temp):
+            params.T_surface_rock = row.surface_temp
+        else: 
+            print(f"Warning: Surface temperature is NaN for well {row.Index}, using default value of 15 C")
+            params.T_surface_rock = 15
+        
+        if pd.notna(row.depth):
+            params.reservoir_thickness = row.depth 
+        else:
+            print(f"Warning: Depth is NaN for well {row.Index}, using default reservoir thickness of 100 m")
+            params.reservoir_thickness = 100.
+
+        if pd.notna(row.k):
+            params.k_rock = row.k 
+        else:
+            print(f"Warning: Permeability is NaN for well {row.Index}, using default value of 2.08 mD")
+            params.k_rock = 2.08
 
         # simulate system
         full_system = FullSystemORC.getDefaultWaterSystem(params)
