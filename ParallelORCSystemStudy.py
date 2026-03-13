@@ -13,7 +13,7 @@ from models.simulationParameters import SimulationParameters
 # FILE PATHS
 output_folder = 'thesis_results'
 data_file = 'test_wells.csv'
-output_file = 'gen_estimates2.csv'
+output_file = 'gen_estimates3_multiprocessing.csv'
 
 # create output folder
 os.makedirs(output_folder, exist_ok=True)
