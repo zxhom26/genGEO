@@ -9,13 +9,18 @@ from models.wellFieldType import WellFieldType
 from models.optimizationType import OptimizationType
 from models.simulationParameters import SimulationParameters
 
-# create output folder
+# FILE PATHS
 output_folder = 'thesis_results'
+data_file = 'test_wells.csv'
+output_file = 'gen_estimates2.csv'
+
+
+# create output folder
 os.makedirs(output_folder, exist_ok=True)
 
 # read wells CSV
 base_path = Path(__file__).parent
-csv_path = base_path / "test_wells.csv"
+csv_path = base_path / data_file
 df_wells = pd.read_csv(csv_path, header=0, index_col=0)
 
 def simulate_well(row):
@@ -87,7 +92,7 @@ with ThreadPoolExecutor(max_workers=6) as executor:  # adjust workers to your CP
         results.append(future.result())
 
 # write results to CSV
-output_file_path = os.path.join(output_folder, 'gen_estimates2.csv')
+output_file_path = os.path.join(output_folder, output_file)
 with open(output_file_path, 'w') as output_file:
     output_file.write("well,depth,latitude,longitude,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
     for res in results:
