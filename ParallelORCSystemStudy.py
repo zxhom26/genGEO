@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+# Process Pool is multiprocessing for CPU-heavy load and Thread Pool is threading concurrency.
 
 from src.fullSystemORC import FullSystemORC
 from src.fullSystemSolver import FullSystemSolver
@@ -13,7 +14,6 @@ from models.simulationParameters import SimulationParameters
 output_folder = 'thesis_results'
 data_file = 'test_wells.csv'
 output_file = 'gen_estimates2.csv'
-
 
 # create output folder
 os.makedirs(output_folder, exist_ok=True)
@@ -86,7 +86,8 @@ def simulate_well(row):
 
 # run simulations in parallel
 results = []
-with ThreadPoolExecutor(max_workers=6) as executor:  # adjust workers to your CPU
+workers = os.cpu_count() - 1
+with ProcessPoolExecutor(max_workers=workers) as executor: 
     futures = {executor.submit(simulate_well, row): row.Index for row in df_wells.itertuples()}
     for future in as_completed(futures):
         results.append(future.result())
