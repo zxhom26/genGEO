@@ -100,7 +100,7 @@ def main():
     # write results to CSV
     output_file_path = os.path.join(output_folder, output_file)
     with open(output_file_path, 'w') as output_file:
-        output_file.write("well,depth,latitude,longitude,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
+        output_file.write("well,depth,latitude,longitude,bhtcorrected_temp,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
         for res in results:
             output_file.write(','.join([str(i) for i in res]) + "\n")
 
