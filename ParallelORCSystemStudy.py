@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor
 # Process Pool is multiprocessing for CPU-heavy load and Thread Pool is threading concurrency.
 
 from src.fullSystemORC import FullSystemORC
@@ -10,10 +10,20 @@ from models.wellFieldType import WellFieldType
 from models.optimizationType import OptimizationType
 from models.simulationParameters import SimulationParameters
 
-# GLOBAL FILE PATHS
-output_folder = 'thesis_results'
-data_file = 'test_wells.csv'
-output_file = 'gen_estimates3_multiprocessing.csv'
+# ----------- GLOBAL FILE PATHS ------------
+# Base directory of the genGEO repository
+GEN_GEO_DIR = Path(__file__).resolve().parent
+
+# Parent GitHub directory containing both repositories
+REPO_ROOT = GEN_GEO_DIR.parent
+
+# SeniorThesis repository
+THESIS_DIR = REPO_ROOT / "SeniorThesis"
+
+# File paths
+data_file = THESIS_DIR / "data" / "subset1_25.csv"
+output_folder = THESIS_DIR / "genGEO_results"
+output_file = "gen_estimates4_multiprocessing.csv"
 
 def simulate_well(row):
     """Simulate a single well and return results."""
@@ -27,8 +37,10 @@ def simulate_well(row):
                                         cost_year=2019,
                                         opt_mode=OptimizationType.MaximizePower,
                                         max_pump_dP=20.e6,
-                                        k_rock=2.08,
                                         rho_rock=2550.,)
+        
+        # robustness for modified variables
+        thermal_gradient = 0.
 
         # assign well-specific parameters
         if pd.isna(row['depth']):
@@ -36,10 +48,11 @@ def simulate_well(row):
         params.depth = row['depth']
 
         if pd.notna(row['harrison_gradient']):
-            params.dT_dz = row['harrison_gradient'] / 1000. # convert from K/km to K/m
+            params.dT_dz = row['harrison_gradient'] / 1000. # convert from C/km or K/km to K/m
         else:
             print(f"[Warning]: Harrison gradient is NaN for well {row['index']}, using default value of 35 K/km")
             params.dT_dz = 0.035
+        thermal_gradient = params.dT_dz
 
         if pd.notna(row['surface_temp']):
             params.T_surface_rock = row['surface_temp']
@@ -48,7 +61,7 @@ def simulate_well(row):
             params.T_surface_rock = 15
         
         if pd.notna(row['depth']):
-            params.reservoir_thickness = row['depth'] # Assuming reservoir thickness is equal to depth!!!!
+            params.reservoir_thickness = row['depth'] * 0.5 # ---- Assuming reservoir thickness is equal to HALF depth!!!!!! -----
         else:
             print(f"[Warning]: Depth is NaN for well {row['index']}, using default reservoir thickness of 100 m")
             params.reservoir_thickness = 100.
@@ -56,7 +69,7 @@ def simulate_well(row):
         if pd.notna(row['k']):
             params.k_rock = row['k']
         else:
-            print(f"[Warning]: Permeability is NaN for well {row['index']}, using default value of 2.08 mD")
+            print(f"[Warning]: Thermal conductivity is NaN for well {row['index']}, using default value of 2.08 W/m-K")
             params.k_rock = 2.08
 
         # simulate system
@@ -71,36 +84,39 @@ def simulate_well(row):
         error_str = ''
 
     except Exception as e:
-        print(f"Error caught for well {row['index']}: {e}")
-        # Default input params and output results in case of error
-        params.dT_dz = 0.0
-        lcoe_b = lcoe_g = power = optMdot = 0.
+        well_id = row.get("index", "unknown")
+        print(f"Error caught for well {well_id}: {e}")
 
+        # Default input params and output results in case of error
+        lcoe_b = lcoe_g = power = optMdot = 0.
         error_str = str(e).replace("\n", "").replace(",", " - ")
 
-    return row['index'], row['depth'], row['latitude'], row['longitude'], row['bhtcorrected_temp'], params.dT_dz, row['k'], optMdot, lcoe_b, lcoe_g, power, error_str
+    return row['index'], row['depth'], row['latitude'], row['longitude'], row['bhtcorrected_temp'], thermal_gradient, row['k'], optMdot, lcoe_b, lcoe_g, power, error_str
 
 def main():
     # create output folder
-    os.makedirs(output_folder, exist_ok=True)
+    output_folder.mkdir(parents=True, exist_ok=True)
 
     # read wells CSV
-    base_path = Path(__file__).parent
-    csv_path = base_path / data_file
-    df_wells = pd.read_csv(csv_path, header=0, index_col=0).reset_index()
+    df_wells = pd.read_csv(data_file, header=0, index_col=0).reset_index()
 
     # run simulations in parallel
     results = []
     workers = max(1, os.cpu_count() - 1)
     with ProcessPoolExecutor(max_workers=workers) as executor: 
-        futures = [executor.submit(simulate_well, row) for row in df_wells.to_dict(orient='records')]
-        for future in as_completed(futures):
-            results.append(future.result())
+
+        # futures = [executor.submit(simulate_well, row) for row in df_wells.to_dict(orient='records')]
+        # for future in as_completed(futures):
+        #     results.append(future.result())
+
+        results = list(
+                    executor.map(simulate_well, df_wells.to_dict(orient="records"))
+                )
 
     # write results to CSV
-    output_file_path = os.path.join(output_folder, output_file)
+    output_file_path = output_folder / output_file
     with open(output_file_path, 'w') as f:
-        f.write("well,depth,latitude,longitude,bhtcorrected_temp,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
+        f.write("well,depth_m,latitude,longitude,bhtcorrected_temp_C,thermal_gradient_K_m,k_W_mK,optMdot,lcoe_b,lcoe_g,power,error\n")
         for res in results:
             f.write(','.join([str(i) for i in res]) + "\n")
 
