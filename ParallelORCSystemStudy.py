@@ -10,18 +10,10 @@ from models.wellFieldType import WellFieldType
 from models.optimizationType import OptimizationType
 from models.simulationParameters import SimulationParameters
 
-# FILE PATHS
+# GLOBAL FILE PATHS
 output_folder = 'thesis_results'
 data_file = 'test_wells.csv'
 output_file = 'gen_estimates3_multiprocessing.csv'
-
-# create output folder
-os.makedirs(output_folder, exist_ok=True)
-
-# read wells CSV
-base_path = Path(__file__).parent
-csv_path = base_path / data_file
-df_wells = pd.read_csv(csv_path, header=0, index_col=0).reset_index()
 
 def simulate_well(row):
     """Simulate a single well and return results."""
@@ -89,6 +81,14 @@ def simulate_well(row):
     return row['index'], row['depth'], row['latitude'], row['longitude'], row['bhtcorrected_temp'], params.dT_dz, row['k'], optMdot, lcoe_b, lcoe_g, power, error_str
 
 def main():
+    # create output folder
+    os.makedirs(output_folder, exist_ok=True)
+
+    # read wells CSV
+    base_path = Path(__file__).parent
+    csv_path = base_path / data_file
+    df_wells = pd.read_csv(csv_path, header=0, index_col=0).reset_index()
+
     # run simulations in parallel
     results = []
     workers = max(1, os.cpu_count() - 1)
@@ -99,10 +99,10 @@ def main():
 
     # write results to CSV
     output_file_path = os.path.join(output_folder, output_file)
-    with open(output_file_path, 'w') as output_file:
-        output_file.write("well,depth,latitude,longitude,bhtcorrected_temp,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
+    with open(output_file_path, 'w') as f:
+        f.write("well,depth,latitude,longitude,bhtcorrected_temp,thermal_gradient_K_m,k_mD,optMdot,lcoe_b,lcoe_g,power,error\n")
         for res in results:
-            output_file.write(','.join([str(i) for i in res]) + "\n")
+            f.write(','.join([str(i) for i in res]) + "\n")
 
 
 if __name__ == "__main__":
