@@ -27,6 +27,8 @@ output_file = "gen_estimates4_multiprocessing.csv"
 
 def simulate_well(row):
     """Simulate a single well and return results."""
+    # robustness for modified output variables
+    thermal_gradient = 0.
 
     try:
         print(f"Simulating Well {row['index']}...")
@@ -38,9 +40,6 @@ def simulate_well(row):
                                         opt_mode=OptimizationType.MaximizePower,
                                         max_pump_dP=20.e6,
                                         rho_rock=2550.,)
-        
-        # robustness for modified variables
-        thermal_gradient = 0.
 
         # assign well-specific parameters
         if pd.isna(row['depth']):
