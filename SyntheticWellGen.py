@@ -105,11 +105,15 @@ def main():
 
     # ASSIGN SYNTHETIC DEPTH TO WELLS
     increments = [0, 1000, 2000, 3000]
-    df_wells = df_wells.loc[df_wells.repeat(len(increments)).reset_index()].copy() # repeat each row for each depth value
-    df_wells['ref_depth'] = df_wells['depth'] // 1000 * 1000
-    df_wells['depth_increment'] = (len(df_wells) // len(increments)) * increments
-    df_wells['synthetic_depth'] = df_wells['depth_increment'] + df_wells['ref_depth']
-    df_wells.drop(columns=['ref_depth', 'depth_increment'], inplace=True)
+    # df_wells = df_wells.loc[df_wells.repeat(len(increments)).reset_index()].copy() # repeat each row for each depth value
+    # df_wells['ref_depth'] = df_wells['depth'] // 1000 * 1000
+    # df_wells['depth_increment'] = (len(df_wells) // len(increments)) * increments
+    # df_wells['synthetic_depth'] = df_wells['depth_increment'] + df_wells['ref_depth']
+    # df_wells.drop(columns=['ref_depth', 'depth_increment'], inplace=True)
+
+    n = len(increments)  # number of repeats per row
+    df_wells = df_wells.loc[df_wells.index.repeat(n)].copy()
+    df_wells['synthetic_depth'] = (df_wells['depth'] // 1000 * 1000) + np.tile(increments, len(df_wells) // len(increments))
 
     # run simulations in parallel
     results = []
@@ -121,7 +125,7 @@ def main():
 
     # write results to CSV
     output_file_path = output_folder / output_file
-    
+
     df_results = pd.DataFrame(results, columns=[
         "well","synthetic_depth_m","latitude","longitude",
         "bhtcorrected_temp_C","thermal_gradient_K_m","k_W_mK",
