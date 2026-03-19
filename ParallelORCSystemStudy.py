@@ -23,7 +23,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "subset1_25.csv"
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates4_multiprocessing.csv"
+output_file = "gen_estimates6_conservative_res.csv"
 
 def simulate_well(row):
     """Simulate a single well and return results."""
