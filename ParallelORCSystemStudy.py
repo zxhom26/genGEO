@@ -59,11 +59,12 @@ def simulate_well(row):
             print(f"[Warning]: Surface temperature is NaN for well {row['index']}, using default value of 15 C")
             params.T_surface_rock = 15
         
-        if pd.notna(row['depth']):
-            params.reservoir_thickness = row['depth'] * 0.5 # ---- Assuming reservoir thickness is equal to HALF depth!!!!!! -----
-        else:
-            print(f"[Warning]: Depth is NaN for well {row['index']}, using default reservoir thickness of 100 m")
-            params.reservoir_thickness = 100.
+        params.reservoir_thickness = 100. # default value in case depth is NaN, but will be overwritten if depth is available
+        # if pd.notna(row['depth']):
+        #     params.reservoir_thickness = row['depth'] * 0.5 # ---- Assuming reservoir thickness is equal to HALF depth!!!!!! -----
+        # else:
+        #     print(f"[Warning]: Depth is NaN for well {row['index']}, using default reservoir thickness of 100 m")
+        #     params.reservoir_thickness = 100.
 
         if pd.notna(row['k']):
             params.k_rock = row['k']
@@ -114,10 +115,12 @@ def main():
 
     # write results to CSV
     output_file_path = output_folder / output_file
-    with open(output_file_path, 'w') as f:
-        f.write("well,depth_m,latitude,longitude,bhtcorrected_temp_C,thermal_gradient_K_m,k_W_mK,optMdot,lcoe_b,lcoe_g,power,error\n")
-        for res in results:
-            f.write(','.join([str(i) for i in res]) + "\n")
+    df_results = pd.DataFrame(results, columns=[
+        "well","depth_m","latitude","longitude",
+        "bhtcorrected_temp_C","thermal_gradient_K_m","k_W_mK",
+        "optMdot","lcoe_b_USD","lcoe_g_USD","power_MW","error"
+    ])
+    df_results.to_csv(output_file_path, index=False)
 
 
 if __name__ == "__main__":
