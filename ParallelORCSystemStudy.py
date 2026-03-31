@@ -24,7 +24,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates8_doe_prop.csv" # MODIFY FOR NEW RESULTS
+output_file = "gen_estimates9_doe_prop.csv" # MODIFY FOR NEW RESULTS
 
 # Ensure file permissions before multiprocessing
 def ensure_writable(path):
@@ -54,7 +54,7 @@ def simulate_well(row):
                                         opt_mode=OptimizationType.MaximizePower,
                                         # max_pump_dP=20.e6, # From high temp well papers
                                         # max_pump_dP=2.57e6, # Stanford paper run 8
-                                        max_pump_dP=15.e6, # Jiang, 2024
+                                        max_pump_dP=15.e6, # (Jiang, 2024) run 9
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
