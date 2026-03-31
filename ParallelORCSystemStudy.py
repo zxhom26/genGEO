@@ -39,7 +39,7 @@ def simulate_well(row):
                                         cost_year=2019,
                                         opt_mode=OptimizationType.MaximizePower,
                                         # max_pump_dP=20.e6,
-                                        max_pump_dP=1.5e6, # Stanford paper
+                                        max_pump_dP=2.57e6, # Stanford paper
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
