@@ -23,7 +23,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates7_doe_prop.csv" # MODIFY FOR NEW RESULTS
+output_file = "gen_estimates8_doe_prop.csv" # MODIFY FOR NEW RESULTS
 
 def simulate_well(row):
     """Simulate a single well and return results."""
