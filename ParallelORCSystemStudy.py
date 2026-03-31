@@ -52,8 +52,9 @@ def simulate_well(row):
                                         wellFieldType=WellFieldType.Doublet,
                                         cost_year=2019,
                                         opt_mode=OptimizationType.MaximizePower,
-                                        # max_pump_dP=20.e6,
-                                        max_pump_dP=2.57e6, # Stanford paper
+                                        # max_pump_dP=20.e6, # From high temp well papers
+                                        # max_pump_dP=2.57e6, # Stanford paper run 8
+                                        max_pump_dP=15.e6, # Jiang, 2024
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
