@@ -21,9 +21,9 @@ REPO_ROOT = GEN_GEO_DIR.parent
 THESIS_DIR = REPO_ROOT / "SeniorThesis"
 
 # File paths
-data_file = THESIS_DIR / "data" / "subset1_25.csv"
+data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates6_conservative_res.csv"
+output_file = "gen_estimates7_doe_prop.csv" # MODIFY FOR NEW RESULTS
 
 def simulate_well(row):
     """Simulate a single well and return results."""
@@ -38,8 +38,10 @@ def simulate_well(row):
                                         wellFieldType=WellFieldType.Doublet,
                                         cost_year=2019,
                                         opt_mode=OptimizationType.MaximizePower,
-                                        max_pump_dP=20.e6,
-                                        rho_rock=2550.,)
+                                        # max_pump_dP=20.e6,
+                                        max_pump_dP=1.5e6, # Stanford paper
+                                        rho_rock=2550.,
+                                        capacity_factor = 0.90,) # DOE prop cap factor
 
         # assign well-specific parameters
         if pd.isna(row['depth']):
