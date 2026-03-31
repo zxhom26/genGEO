@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
@@ -25,6 +26,19 @@ data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS
 output_folder = THESIS_DIR / "genGEO_results"
 output_file = "gen_estimates8_doe_prop.csv" # MODIFY FOR NEW RESULTS
 
+# Ensure file permissions before multiprocessing
+def ensure_writable(path):
+    try:
+        with open(path, 'a'):
+            pass
+    except PermissionError:
+        print(f"No write permission for {path}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error accessing {path}: {e}")
+        sys.exit(1)
+
+# Simulation function for a single well, to be run in parallel
 def simulate_well(row):
     """Simulate a single well and return results."""
     # robustness for modified output variables
@@ -96,6 +110,10 @@ def simulate_well(row):
     return row['index'], row['depth'], row['latitude'], row['longitude'], row['bhtcorrected_temp'], thermal_gradient, row['k'], optMdot, lcoe_b, lcoe_g, power, error_str
 
 def main():
+    # check permissions of output file
+    output_file_path = output_folder / output_file
+    ensure_writable(output_file_path)
+
     # create output folder
     output_folder.mkdir(parents=True, exist_ok=True)
 
@@ -116,7 +134,6 @@ def main():
                 )
 
     # write results to CSV
-    output_file_path = output_folder / output_file
     df_results = pd.DataFrame(results, columns=[
         "well","depth_m","latitude","longitude",
         "bhtcorrected_temp_C","thermal_gradient_K_m","k_W_mK",
