@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 import pandas as pd
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
@@ -22,9 +23,63 @@ REPO_ROOT = GEN_GEO_DIR.parent
 THESIS_DIR = REPO_ROOT / "SeniorThesis"
 
 # File paths
-data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS
+data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates9_doe_prop.csv" # MODIFY FOR NEW RESULTS
+output_file = "gen_estimates9_doe_prop.csv" # MODIFY FOR NEW RESULTS <----------------
+
+# Automatically push files to GitHub after running the script
+def git_commit_and_push(repo_dir, file_path, branch="colab"):
+    try:
+        repo_dir = Path(repo_dir).resolve()
+        file_path = Path(file_path).resolve()
+
+        # Ensure file is inside repo (prevents accidental wrong-path commits)
+        if repo_dir not in file_path.parents:
+            raise ValueError(f"{file_path} is not inside repo {repo_dir}")
+
+        rel_path = file_path.relative_to(repo_dir)
+
+        # Checkout the correct branch
+        subprocess.run(
+            ["git", "-C", str(repo_dir), "checkout", branch],
+            check=True
+        )
+
+        # Pull latest to avoid conflicts
+        subprocess.run(
+            ["git", "-C", str(repo_dir), "pull", "origin", branch],
+            check=True
+        )
+
+        # Add ONLY the target file
+        subprocess.run(
+            ["git", "-C", str(repo_dir), "add", str(rel_path)],
+            check=True
+        )
+
+        # Commit (gracefully handle no changes)
+        result = subprocess.run(
+            ["git", "-C", str(repo_dir), "commit", "-m", f"Update {rel_path}"],
+            capture_output=True,
+            text=True
+        )
+
+        if "nothing to commit" in (result.stdout + result.stderr).lower():
+            print("No changes to commit.")
+            return
+
+        # Push to the correct branch
+        subprocess.run(
+            ["git", "-C", str(repo_dir), "push", "origin", branch],
+            check=True
+        )
+
+        print(f"Pushed {rel_path} to {branch} successfully.")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {e}")
+    except Exception as e:
+        print(f"Error: {e}")
 
 # Ensure file permissions before multiprocessing
 def ensure_writable(path):
@@ -76,12 +131,7 @@ def simulate_well(row):
             print(f"[Warning]: Surface temperature is NaN for well {row['index']}, using default value of 15 C")
             params.T_surface_rock = 15
         
-        params.reservoir_thickness = 100. # default value in case depth is NaN, but will be overwritten if depth is available
-        # if pd.notna(row['depth']):
-        #     params.reservoir_thickness = row['depth'] * 0.5 # ---- Assuming reservoir thickness is equal to HALF depth!!!!!! -----
-        # else:
-        #     print(f"[Warning]: Depth is NaN for well {row['index']}, using default reservoir thickness of 100 m")
-        #     params.reservoir_thickness = 100.
+        params.reservoir_thickness = 100. # <---------------------------------- ASSUMPTION: 100 m thickness for all wells, since we don't have this data
 
         if pd.notna(row['k']):
             params.k_rock = row['k']
@@ -141,6 +191,9 @@ def main():
         "optMdot","lcoe_b_USD","lcoe_g_USD","power_MW","error"
     ])
     df_results.to_csv(output_file_path, index=False)
+
+    # push to GitHub
+    git_commit_and_push(THESIS_DIR, output_file_path)
 
 
 if __name__ == "__main__":
