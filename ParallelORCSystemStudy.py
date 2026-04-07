@@ -51,6 +51,11 @@ def git_commit_and_push(repo_dir, file_path, branch="colab"):
             check=True
         )
 
+        print("\n=== GIT DEBUG ===")
+        subprocess.run(["git", "-C", str(repo_dir), "status"])
+        print("Trying to add:", rel_path)
+        print("=================\n")
+
         # Add ONLY the target file
         subprocess.run(
             ["git", "-C", str(repo_dir), "add", str(rel_path)],
@@ -165,11 +170,23 @@ def main():
     output_file_path = output_folder / output_file
     ensure_writable(output_file_path)
 
-    # create output folder
-    output_folder.mkdir(parents=True, exist_ok=True)
+    print("\n=== PATH DEBUG ===")
+    print("GEN_GEO_DIR:", GEN_GEO_DIR)
+    print("REPO_ROOT:", REPO_ROOT)
+    print("THESIS_DIR:", THESIS_DIR)
+    print("DATA FILE:", data_file)
+    print("OUTPUT FOLDER:", output_folder)
+    print("DATA EXISTS:", data_file.exists())
+    print("OUTPUT FOLDER EXISTS:", output_folder.exists())
+    print(f"Starting simulations for [{data_file}] with output to [{output_file_path}]...")
+    print("==================\n")
 
     # read wells CSV
     df_wells = pd.read_csv(data_file, header=0, index_col=0).reset_index()
+    print("\n=== DATA DEBUG ===")
+    print("Number of wells loaded:", len(df_wells))
+    print(df_wells.head())
+    print("===================\n")
 
     # run simulations in parallel
     results = []
@@ -183,6 +200,10 @@ def main():
         results = list(
                     executor.map(simulate_well, df_wells.to_dict(orient="records"))
                 )
+    print("=== RESULTS ===\n")
+    print("Results returned:", len(results))
+    print("Sample result:", results[0] if results else "NO RESULTS")
+    print("=== RESULTS END ===\n")
 
     # write results to CSV
     df_results = pd.DataFrame(results, columns=[
@@ -190,7 +211,24 @@ def main():
         "bhtcorrected_temp_C","thermal_gradient_K_m","k_W_mK",
         "optMdot","lcoe_b_USD","lcoe_g_USD","power_MW","error"
     ])
+
+    print("\n=== DATAFRAME DEBUG ===")
+    print("Result rows:", len(df_results))
+    print(df_results.head())
+    print("======================\n")
+
+    print("\n=== WRITE DEBUG ===")
     df_results.to_csv(output_file_path, index=False)
+
+    print("Wrote to:", output_file_path)
+    print("Exists after write:", output_file_path.exists())
+
+    if output_file_path.exists():
+        print("File size:", output_file_path.stat().st_size)
+    else:
+        print("FILE NOT CREATED")
+
+    print("====================\n")
 
     # push to GitHub
     git_commit_and_push(THESIS_DIR, output_file_path)
