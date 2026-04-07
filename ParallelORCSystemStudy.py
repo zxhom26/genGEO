@@ -23,9 +23,9 @@ REPO_ROOT = GEN_GEO_DIR.parent
 THESIS_DIR = REPO_ROOT / "SeniorThesis"
 
 # File paths
-data_file = THESIS_DIR / "data" / "doe_wells_50.csv" # MODIFY FOR DIFF SUBSETS <----------------
+data_file = THESIS_DIR / "data" / "bht_depth_binned.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates9_doe_prop.csv" # MODIFY FOR NEW RESULTS <----------------
+output_file = "gen_estimates10_depth_bin.csv" # MODIFY FOR NEW RESULTS <----------------
 
 # Automatically push files to GitHub after running the script
 def git_commit_and_push(repo_dir, file_path, branch="colab"):
