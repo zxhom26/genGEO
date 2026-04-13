@@ -114,7 +114,7 @@ def simulate_well(row):
                                         opt_mode=OptimizationType.MaximizePower,
                                         # max_pump_dP=20.e6, # From high temp well papers
                                         # max_pump_dP=2.57e6, # Stanford paper run 8
-                                        max_pump_dP=15.e6, # (Jiang, 2024) run 9
+                                        max_pump_dP=20.e6, # (Jiang, 2024) run 9
                                         permeability=1e-12, # Sligo-Hosston formation permeability, (Arzabala, 2026)
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
@@ -139,7 +139,7 @@ def simulate_well(row):
             print(f"[Warning]: Surface temperature is NaN for well {row['index']}, using default value of 15 C")
             params.T_surface_rock = 15
         
-        params.reservoir_thickness = 300. # <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
+        params.reservoir_thickness = 200. # <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
 
         if pd.notna(row['k']):
             params.k_rock = row['k']
