@@ -25,7 +25,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "bht_depth_binned.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates12_permeability.csv" # MODIFY FOR NEW RESULTS <----------------
+output_file = "gen_estimates13_sligo_hosston.csv" # MODIFY FOR NEW RESULTS <----------------
 
 # Automatically push files to GitHub after running the script
 def git_commit_and_push(repo_dir, file_path, branch="colab"):
@@ -98,7 +98,7 @@ def ensure_writable(path):
         print(f"Unexpected error accessing {path}: {e}")
         sys.exit(1)
 
-# Simulation function for a single well, to be run in parallel
+# Simulation function for a single well, to be run in parallel  
 def simulate_well(row):
     """Simulate a single well and return results."""
     # robustness for modified output variables
@@ -120,9 +120,11 @@ def simulate_well(row):
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
         # assign well-specific parameters
-        if pd.isna(row['depth']):
-            raise ValueError("Depth is NaN, cannot simulate well") # fatal error
-        params.depth = row['depth']
+        # if pd.isna(row['depth']): # --------------------------------------------- RUN 13 SET DEPTH SPECIFICALLY TO SLIGO-HOSSTON depth 
+        #     raise ValueError("Depth is NaN, cannot simulate well") # fatal error
+        # params.depth = row['depth']
+
+        params.depth = 2500. # Sligo-Hosston high permeability zone depth RUN 13 <----------------------------------
 
         if pd.notna(row['harrison_gradient']):
             params.dT_dz = row['harrison_gradient'] / 1000. # convert from C/km or K/km to K/m
@@ -137,7 +139,7 @@ def simulate_well(row):
             print(f"[Warning]: Surface temperature is NaN for well {row['index']}, using default value of 15 C")
             params.T_surface_rock = 15
         
-        params.reservoir_thickness = 100. # <---------------------------------- ASSUMPTION: 100 m thickness for all wells, since we don't have this data
+        params.reservoir_thickness = 300. # <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
 
         if pd.notna(row['k']):
             params.k_rock = row['k']
