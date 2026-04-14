@@ -114,9 +114,11 @@ def simulate_well(row):
                                         opt_mode=OptimizationType.MaximizePower,
                                         # max_pump_dP=20.e6, # From high temp well papers
                                         # max_pump_dP=2.57e6, # Stanford paper run 8
+                                        # max_pump_dP=20.e6, # (Jiang, 2024) run 9
                                         max_pump_dP=20.e6, # (Jiang, 2024) run 9
-                                        permeability=1e-14, # 1e-15 m^2
-                                        # permeability=1e-14, # Sligo-Hosston formation permeability, (Arzabala, 2026)
+                                        # permeability=1e-13, # 1e-15 m^2
+                                        # permeability=1e-14, # Sli go-Hosston formation permeability, (Arzabala, 2026)
+                                        permeability=5e-13, # 1e-15 m^2
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
