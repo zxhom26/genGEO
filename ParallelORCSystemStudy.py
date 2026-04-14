@@ -25,7 +25,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "sabine_high_gradients.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates20_haynesville_150_res_low_perm_moderate_pump.csv" # MODIFY FOR NEW RESULTS <----------------
+output_file = "gen_estimates21_haynesville_300_res_low_perm_moderate_pump.csv" # MODIFY FOR NEW RESULTS <----------------
 
 # Automatically push files to GitHub after running the script
 def git_commit_and_push(repo_dir, file_path, branch="colab"):
@@ -111,11 +111,13 @@ def simulate_well(row):
                                         orc_fluid='R245fa',
                                         wellFieldType=WellFieldType.Doublet,
                                         cost_year=2019,
-                                        opt_mode=OptimizationType.MaximizePower,
+                                        # opt_mode=OptimizationType.MaximizePower,
+                                        opt_mode=OptimizationType.MinimizeCost, # RUN 21
+                                        well_spacing = 1000.,
                                         # max_pump_dP=20.e6, # From high temp well papers
                                         # max_pump_dP=2.57e6, # Stanford paper run 8
                                         # max_pump_dP=20.e6, # (Jiang, 2024) run 9
-                                        max_pump_dP=15.e6, # RUN 19
+                                        max_pump_dP=10.e6, # RUN 19
                                         # permeability=1e-13, # 1e-15 m^2
                                         # permeability=1e-14, # Sli go-Hosston formation permeability, (Arzabala, 2026)
                                         # permeability=5e-13, # RUN 18
@@ -130,8 +132,8 @@ def simulate_well(row):
         # params.depth = row['depth']
 
         # params.depth = 2500. # Sligo-Hosston high permeability zone depth RUN 13 <----------------------------------
-        # params.depth = 3750. # Cotton Valley moderate permeability zone depth RUN 18s <----------------------------------
-        params.depth = 4000.
+        params.depth = 3750. # Cotton Valley moderate permeability zone depth RUN 18, 21 <----------------------------------
+        # params.depth = 4000.
 
         if pd.notna(row['harrison_gradient']):
             params.dT_dz = row['harrison_gradient'] / 1000. # convert from C/km or K/km to K/m
@@ -146,7 +148,8 @@ def simulate_well(row):
             print(f"[Warning]: Surface temperature is NaN for well {row['index']}, using default value of 15 C")
             params.T_surface_rock = 15
         
-        params.reservoir_thickness = 150. # <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
+        params.reservoir_thickness = 300. # RUN 21 <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
+        # params.reservoir_thickness = 300. # RUN 20
 
         if pd.notna(row['k']):
             params.k_rock = row['k']

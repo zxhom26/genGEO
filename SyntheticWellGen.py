@@ -38,8 +38,9 @@ def simulate_well(row):
                                         orc_fluid='R245fa',
                                         wellFieldType=WellFieldType.Doublet,
                                         cost_year=2019,
-                                        opt_mode=OptimizationType.MaximizePower,
-                                        max_pump_dP=20.e6,
+                                        well_spacing = 1000., # RUN 21
+                                        opt_mode=OptimizationType.MinimizeCost,
+                                        max_pump_dP=10.e6,
                                         rho_rock=2550.,)
 
         # assign well-specific parameters
