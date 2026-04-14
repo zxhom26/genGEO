@@ -25,7 +25,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "sabine_high_gradients.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates17_sligo_hosston_100_res.csv" # MODIFY FOR NEW RESULTS <----------------
+output_file = "gen_estimates18_sligo_hosston_100_res.csv" # MODIFY FOR NEW RESULTS <----------------
 
 # Automatically push files to GitHub after running the script
 def git_commit_and_push(repo_dir, file_path, branch="colab"):
@@ -118,7 +118,7 @@ def simulate_well(row):
                                         max_pump_dP=20.e6, # (Jiang, 2024) run 9
                                         # permeability=1e-13, # 1e-15 m^2
                                         # permeability=1e-14, # Sli go-Hosston formation permeability, (Arzabala, 2026)
-                                        permeability=5e-13, # 1e-15 m^2
+                                        permeability=5e-13, # RUN 18
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
@@ -127,7 +127,8 @@ def simulate_well(row):
         #     raise ValueError("Depth is NaN, cannot simulate well") # fatal error
         # params.depth = row['depth']
 
-        params.depth = 2500. # Sligo-Hosston high permeability zone depth RUN 13 <----------------------------------
+        # params.depth = 2500. # Sligo-Hosston high permeability zone depth RUN 13 <----------------------------------
+        params.depth = 3750. # Cotton Valley moderate permeability zone depth RUN 18s <----------------------------------
 
         if pd.notna(row['harrison_gradient']):
             params.dT_dz = row['harrison_gradient'] / 1000. # convert from C/km or K/km to K/m
