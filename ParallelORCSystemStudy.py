@@ -120,7 +120,7 @@ def simulate_well(row):
                                         # permeability=1e-14, # Sli go-Hosston formation permeability, (Arzabala, 2026)
                                         # permeability=5e-13, # RUN 18
                                         # permeability=1e-14, # RUN 19
-                                        permeability=1e-15, # RUN 20
+                                        permeability=5e-14, # RUN 20
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
