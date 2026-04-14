@@ -25,7 +25,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "sabine_high_gradients.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates15_sligo_hosston_200_res.csv" # MODIFY FOR NEW RESULTS <----------------
+output_file = "gen_estimates16_sligo_hosston_200_res.csv" # MODIFY FOR NEW RESULTS <----------------
 
 # Automatically push files to GitHub after running the script
 def git_commit_and_push(repo_dir, file_path, branch="colab"):
@@ -114,8 +114,9 @@ def simulate_well(row):
                                         opt_mode=OptimizationType.MaximizePower,
                                         # max_pump_dP=20.e6, # From high temp well papers
                                         # max_pump_dP=2.57e6, # Stanford paper run 8
-                                        max_pump_dP=20.e6, # (Jiang, 2024) run 9
-                                        permeability=1e-12, # Sligo-Hosston formation permeability, (Arzabala, 2026)
+                                        max_pump_dP=15.e6, # (Jiang, 2024) run 9
+                                        # permeability=1e-12, # 1e-15 m^2
+                                        permeability=1e-14, # Sligo-Hosston formation permeability, (Arzabala, 2026)
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
