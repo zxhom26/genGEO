@@ -25,7 +25,7 @@ THESIS_DIR = REPO_ROOT / "SeniorThesis"
 # File paths
 data_file = THESIS_DIR / "data" / "sabine_high_gradients.csv" # MODIFY FOR DIFF SUBSETS <----------------
 output_folder = THESIS_DIR / "genGEO_results"
-output_file = "gen_estimates18_sligo_hosston_100_res.csv" # MODIFY FOR NEW RESULTS <----------------
+output_file = "gen_estimates19_sligo_hosston_150_res_high_perm_moderate_pump.csv" # MODIFY FOR NEW RESULTS <----------------
 
 # Automatically push files to GitHub after running the script
 def git_commit_and_push(repo_dir, file_path, branch="colab"):
@@ -115,10 +115,11 @@ def simulate_well(row):
                                         # max_pump_dP=20.e6, # From high temp well papers
                                         # max_pump_dP=2.57e6, # Stanford paper run 8
                                         # max_pump_dP=20.e6, # (Jiang, 2024) run 9
-                                        max_pump_dP=20.e6, # (Jiang, 2024) run 9
+                                        max_pump_dP=15.e6, # RUN 19
                                         # permeability=1e-13, # 1e-15 m^2
                                         # permeability=1e-14, # Sli go-Hosston formation permeability, (Arzabala, 2026)
-                                        permeability=5e-13, # RUN 18
+                                        # permeability=5e-13, # RUN 18
+                                        permeability=1e-14, # RUN 19
                                         rho_rock=2550.,
                                         capacity_factor = 0.90,) # DOE prop cap factor
 
@@ -143,7 +144,7 @@ def simulate_well(row):
             print(f"[Warning]: Surface temperature is NaN for well {row['index']}, using default value of 15 C")
             params.T_surface_rock = 15
         
-        params.reservoir_thickness = 100. # <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
+        params.reservoir_thickness = 150. # <---------------------------------- ASSUMPTION [100 - 600m thickness range in Sligo-Hosston]
 
         if pd.notna(row['k']):
             params.k_rock = row['k']
